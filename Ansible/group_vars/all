@@ -1,0 +1,6 @@
+jenkins_admin_username: admin
+jenkins_admin_password: Dan131296
+jenkins_plugins: 
+    - ansible
+    - git
+    - pipeline 

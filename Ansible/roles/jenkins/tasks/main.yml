@@ -1,0 +1,57 @@
+---
+- name: Install openjdk-8-jdk
+  apt:
+    name: openjdk-8-jdk
+    state: present
+    update_cache: yes
+
+- name: Import the GPG keys of the Jenkins repository
+  get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+    dest: /
+
+- name: Add key
+  shell: apt-key add /jenkins.io.key
+
+- name: Add the Jenkins repository to the system
+  shell: sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+- name: Install jenkins
+  apt:
+    name: jenkins
+    state: present
+    update_cache: yes
+
+- name: Configure JVM Arguments
+  lineinfile:
+    dest: /etc/default/jenkins
+    regexp: '^JAVA_ARGS='
+    line: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+    
+- name: Create initialization scripts directory
+  ansible.builtin.file:
+    path: /var/lib/jenkins/init.groovy.d
+    state: directory
+    mode: '0755'
+
+- name: Add initialization script to setup basic security
+  template: 
+    src: roles/jenkins/templates/security.groovy.j2
+    dest: /var/lib/jenkins/init.groovy.d/security.groovy
+
+- name: Restarted & Enable Jenkins
+  systemd:
+    name: jenkins
+    state: restarted
+
+- name: Install Plugins on behalf of jenkins user {{jenkins_admin_username}}
+  jenkins_plugin:
+    name: "{{ item }}"
+    url_username: "{{jenkins_admin_username}}"
+    url_password: "{{jenkins_admin_password}}"
+  register: plugin_result
+  until: plugin_result is success
+  retries: 10
+  delay: 2
+  with_items:
+    - "{{ jenkins_plugins }}"

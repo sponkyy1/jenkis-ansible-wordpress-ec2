@@ -1,0 +1,47 @@
+---
+- name: Download wordpress installer
+  get_url: 
+    url: https://wordpress.org/latest.tar.gz 
+    dest: /tmp/ 
+
+- name: Extract  /tmp/latest.tar.gz into /var/www/html/wordpress
+  ansible.builtin.unarchive:
+    src: /tmp/wordpress-5.7.2.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: mv wordpress
+  shell: mv /tmp/wordpress /var/www/html/wordpress
+  
+- name: chown to /var/www/html/wordpress/
+  file:
+    path: /var/www/html/wordpress/
+    owner: www-data
+    group: www-data
+    recurse: true
+
+- name: chown to /var/www/html/wordpress/ -> 0755
+  file:
+    path: /var/www/html/wordpress/
+    mode: 0755
+    recurse: true
+
+- name: Update nginx confs for WordPress
+  template: 
+    src: roles/nginx/templates/default 
+    dest: /etc/nginx/sites-enabled/default
+
+- name: Start & Enable nginx.service  
+  systemd:
+    name: nginx.service
+    state: restarted
+
+- name: Remove file wp-config-sample.php
+  ansible.builtin.file:
+    path: /var/www/html/wordpress/wp-config-sample.php
+    state: absent
+    
+- name: mv wp-config-sample.php to wp-config.php
+  template: 
+    src: roles/wordpress/templates/wp-config-sample.php 
+    dest: /var/www/html/wordpress/wp-config.php

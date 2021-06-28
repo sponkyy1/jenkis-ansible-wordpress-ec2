@@ -1,0 +1,4 @@
+wp_db_name: "{{ wp_db_name }}"
+wp_db_user: "{{ wp_db_user }}"
+wp_db_password: "{{ wp_db_password }}"
+localhost: "{{ localhost }}"

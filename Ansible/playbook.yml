@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: yes
+  roles:
+  - git
+  - python
+  - jenkins
+  - ansible
+  - mysql-client

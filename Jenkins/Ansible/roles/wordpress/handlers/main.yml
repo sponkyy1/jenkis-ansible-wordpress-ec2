@@ -1,0 +1,5 @@
+---
+- name: Start & Enable nginx.service  
+  systemd:
+    name: nginx.service
+    state: restarted

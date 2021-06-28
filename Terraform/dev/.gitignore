@@ -1,0 +1,9 @@
+.terraform-dev
+.terraform
+provider.tf
+*.tfvars
+dev.tfvars
+terraform.pem
+terraform.*
+terraform.tfstate
+terraform.tfstate.backup

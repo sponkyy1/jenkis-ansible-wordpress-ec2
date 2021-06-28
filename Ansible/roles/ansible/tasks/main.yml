@@ -1,0 +1,38 @@
+---
+- name: Install ansible
+  apt:
+    name: ansible
+    state: present
+    update_cache: yes
+
+- name: Install Sshpass
+  apt:
+    name: sshpass
+    state: present
+    update_cache: yes
+
+- name: Set up Ansible_1
+  lineinfile:
+    dest: /etc/ansible/ansible.cfg
+    regexp: '#host_key_checking = False'
+    line: 'host_key_checking = False'
+
+- name: Set up Ansible_2
+  lineinfile:
+    dest: /etc/ansible/ansible.cfg
+    regexp: '#inventory      = /etc/ansible/hosts'
+    line: 'inventory      = /etc/ansible/hosts'
+
+- name: "apt update"
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Set up Ansible_3
+  lineinfile:
+    dest: /etc/ansible/ansible.cfg
+    regexp: '#vault_password_file = /path/to/vault_password_file'
+    line: 'vault_password_file      = ~/.ansible_vault_pass'
+
+- name: export ANSIBLE_VAULT_PASSWORD_FILE
+  shell: cp ~/.ansible_vault_pass /var/lib/jenkins/.ansible_vault_pass
